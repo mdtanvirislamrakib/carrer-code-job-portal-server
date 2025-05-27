@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 const express = require('express');
@@ -31,6 +31,43 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+
+    const jobsCollections = client.db('carrerCodeJobHunting').collection('jobs')
+    const applicationsCollection = client.db('carrerCodeJobHunting').collection('applications')
+
+
+    // get jobs data
+    app.get("/jobs", async(req, res) => {
+        const cursor = jobsCollections.find();
+        const result = await cursor.toArray();
+
+        res.send(result);
+    })
+
+    // get a single jobs details
+    app.get("/jobs/:id", async(req, res) => {
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)};
+        const result = await jobsCollections.findOne(query);
+        
+        res.send(result);
+    })
+
+    // job applicants related api
+    app.post("/applications", async(req, res) => {
+        const application = req.body;
+        console.log(application);
+        const result = await applicationsCollection.insertOne(application)
+        res.send(result);
+    })
+
+
+
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
