@@ -38,31 +38,55 @@ async function run() {
 
 
     // get jobs data
-    app.get("/jobs", async(req, res) => {
-        const cursor = jobsCollections.find();
-        const result = await cursor.toArray();
+    app.get("/jobs", async (req, res) => {
+      const cursor = jobsCollections.find();
+      const result = await cursor.toArray();
 
-        res.send(result);
+      res.send(result);
     })
 
     // get a single jobs details
-    app.get("/jobs/:id", async(req, res) => {
-        const id = req.params.id;
-        const query = {_id: new ObjectId(id)};
-        const result = await jobsCollections.findOne(query);
-        
-        res.send(result);
+    app.get("/jobs/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jobsCollections.findOne(query);
+
+      res.send(result);
     })
 
     // job applicants related api
-    app.post("/applications", async(req, res) => {
-        const application = req.body;
-        console.log(application);
-        const result = await applicationsCollection.insertOne(application)
-        res.send(result);
+    app.post("/applications", async (req, res) => {
+      const application = req.body;
+      console.log(application);
+      const result = await applicationsCollection.insertOne(application)
+      res.send(result);
     })
 
 
+    app.get('/applications', async (req, res) => {
+      const email = req.query.email;
+
+      const query = {
+        applicant: email
+      }
+      const result = await applicationsCollection.find(query).toArray()
+      
+      // bad way to aggregat data
+      for (const application of result) {
+        const jobId = application.id;
+        const jobQuery = { _id: new ObjectId(jobId) };
+        const job = await jobsCollections.findOne(jobQuery)
+
+        application.company = job.company
+        application.title = job.title
+        application.company_logo = job.company_logo
+
+
+      }
+
+
+      res.send(result)
+    })
 
 
 
@@ -83,9 +107,9 @@ run().catch(console.dir);
 
 
 app.get("/", (req, res) => {
-    res.send("Carrer Code Job hunter")
+  res.send("Carrer Code Job hunter")
 })
 
 app.listen(port, () => {
-    console.log(`My server port is ${port}`);
+  console.log(`My server port is ${port}`);
 })
