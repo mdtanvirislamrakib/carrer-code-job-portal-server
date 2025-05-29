@@ -54,6 +54,14 @@ async function run() {
       res.send(result);
     })
 
+    // add data in jobs
+    app.post("/jobs", async(req, res) => {
+      const newJob = req.body;
+      console.log(newJob);
+      const result  = await jobsCollections.insertOne(newJob);
+      res.send(result)
+    }) 
+
     // job applicants related api
     app.post("/applications", async (req, res) => {
       const application = req.body;
@@ -90,8 +98,6 @@ async function run() {
 
 
 
-
-
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -101,9 +107,6 @@ async function run() {
   }
 }
 run().catch(console.dir);
-
-
-
 
 
 app.get("/", (req, res) => {
