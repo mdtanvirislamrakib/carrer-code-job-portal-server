@@ -39,7 +39,15 @@ async function run() {
 
     // get jobs data
     app.get("/jobs", async (req, res) => {
-      const cursor = jobsCollections.find();
+
+      const email = req.query.email;
+      const query = {};
+      if(email) {
+        query.hr_email = email;
+      }
+
+
+      const cursor = jobsCollections.find(query);
       const result = await cursor.toArray();
 
       res.send(result);
