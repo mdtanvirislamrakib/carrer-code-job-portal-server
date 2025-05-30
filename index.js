@@ -3,6 +3,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const express = require('express');
 const app = express();
+const jwt = require('jsonwebtoken')
 const port = process.env.PORT || 5000;
 const cors = require('cors')
 require('dotenv').config();
@@ -10,7 +11,10 @@ require('dotenv').config();
 
 
 // middleware
-app.use(cors())
+app.use(cors({
+  origin : ['http://localhost:5173/'],
+  credentials: true    // allow cookies
+}))
 app.use(express.json());
 
 // add mongoDB
@@ -35,6 +39,15 @@ async function run() {
 
     const jobsCollections = client.db('carrerCodeJobHunting').collection('jobs')
     const applicationsCollection = client.db('carrerCodeJobHunting').collection('applications')
+
+
+    // jwt token related api
+    app.post("/jwt", async(req, res) => {
+      const {email} = req.body;
+      const user = {email}
+      const token = jwt.sign(user, process.env.JWT_ACCEES_SECRET, {expiresIn: "1h"});
+      res.send({token})
+    })
 
 
     // get jobs data
