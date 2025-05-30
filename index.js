@@ -62,6 +62,16 @@ async function run() {
       res.send(result);
     })
 
+    // get applications job data
+    app.get("/applications/job/:job_id", async(req, res) => {
+      const job_id = req.params.job_id;
+      const query = {id: job_id};
+      const result = await applicationsCollection.find(query).toArray();
+      res.send(result)
+    })
+
+
+
     // add data in jobs
     app.post("/jobs", async(req, res) => {
       const newJob = req.body;
@@ -76,6 +86,20 @@ async function run() {
       console.log(application);
       const result = await applicationsCollection.insertOne(application)
       res.send(result);
+    })
+
+
+    // update active status data
+    app.patch("/applications/:id", async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const updatedDoc = {
+        $set: {
+          status: req.body.status
+        }
+      }
+      const result = await applicationsCollection.updateOne(filter, updatedDoc)
+      res.send(result)
     })
 
 
